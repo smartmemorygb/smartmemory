@@ -8,7 +8,13 @@
 // ⚠️ PEGAR AQUÍ LA URL DE TU WEB APP DE GOOGLE APPS SCRIPT
 // (ver INSTRUCCIONES_DESPLIEGUE.md). Mientras esté vacía, el chat
 // funciona igual con la base de conocimiento local (sin IA generativa).
-const GEMINI_BACKEND_URL = "https://script.google.com/macros/s/AKfycbySMes0V-5wuhKmBC15p0NQph6QXHs1YE2kZ6iaL42BGaQQ-ntPfIvQYaYrGK6n9ec2/exec";
+const GEMINI_BACKEND_URL = "";
+// Nota: se intentó conectar un backend de Gemini vía Google Apps Script,
+// pero Apps Script no devuelve el header CORS necesario para que fetch()
+// le hable desde un sitio externo (limitación conocida de la plataforma,
+// no de esta configuración). Queda documentado en Code.gs por si se
+// retoma más adelante con otro backend (ej. Cloudflare Workers, que sí
+// soporta CORS de forma nativa y también es gratuito).
 
 const BASE_RAW_URL = "https://raw.githubusercontent.com/mmatarrita-stack/IA/main/pdfs";
 
