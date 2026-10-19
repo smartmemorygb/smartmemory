@@ -899,12 +899,14 @@ const app = {
 
         const loadingMsg = this.addMessage("loading", "🤖 Consultando con IA generativa (Gemini)...");
         try {
-            const context = Object.values(CONTENT_STORE).join("\n\n");
-            const resp = await fetch(GEMINI_BACKEND_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ question: query, context })
-            });
+            // Contexto corto (solo títulos + códigos) en vez del contenido completo:
+            // Apps Script maneja CORS de forma más confiable en GET, y un contexto
+            // corto mantiene la URL dentro de límites seguros.
+            const context = Object.values(PROCEDURE_INDEX)
+                .map(p => `${p.source_id}: ${p.title}`)
+                .join(" | ");
+            const url = `${GEMINI_BACKEND_URL}?q=${encodeURIComponent(query)}&ctx=${encodeURIComponent(context)}`;
+            const resp = await fetch(url, { method: "GET" });
             const data = await resp.json();
             loadingMsg.remove();
             if (data.answer) {
