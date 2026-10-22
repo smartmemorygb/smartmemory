@@ -16,7 +16,7 @@ const GEMINI_BACKEND_URL = "";
 // retoma más adelante con otro backend (ej. Cloudflare Workers, que sí
 // soporta CORS de forma nativa y también es gratuito).
 
-const BASE_RAW_URL = "https://raw.githubusercontent.com/mmatarrita-stack/IA/main/pdfs";
+const BASE_RAW_URL = "https://raw.githubusercontent.com/smartmemorygb/smartmemory/main/pdfs";
 
 /* ---------------------- 1. ÍNDICE DE PROCEDIMIENTOS ---------------------- */
 const PROCEDURE_INDEX = {
