@@ -31,7 +31,7 @@
  */
 
 const GEMINI_API_KEY = "PEGA_AQUI_TU_API_KEY_DE_AI_STUDIO"; // <-- reemplazar
-const GEMINI_MODEL = "gemini-2.0-flash"; // modelo gratuito, rápido
+const GEMINI_MODEL = "gemini-3.8-flash"; // modelo gratuito y rápido vigente (gemini-2.0-flash fue retirado)
 
 function callGemini(question, context) {
   try {
@@ -48,7 +48,7 @@ function callGemini(question, context) {
       "PREGUNTA: " + question;
 
     const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
-      GEMINI_MODEL + ":generateContent?key=" + GEMINI_API_KEY;
+      GEMINI_MODEL + ":generateContent";
 
     const payload = {
       contents: [{ parts: [{ text: prompt }] }]
@@ -57,6 +57,7 @@ function callGemini(question, context) {
     const response = UrlFetchApp.fetch(url, {
       method: "post",
       contentType: "application/json",
+      headers: { "x-goog-api-key": GEMINI_API_KEY },
       payload: JSON.stringify(payload),
       muteHttpExceptions: true
     });

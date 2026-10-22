@@ -5,16 +5,12 @@
    con la base de conocimiento local.
    ========================================================================= */
 
-// ⚠️ PEGAR AQUÍ LA URL DE TU WEB APP DE GOOGLE APPS SCRIPT
-// (ver INSTRUCCIONES_DESPLIEGUE.md). Mientras esté vacía, el chat
-// funciona igual con la base de conocimiento local (sin IA generativa).
-const GEMINI_BACKEND_URL = "";
-// Nota: se intentó conectar un backend de Gemini vía Google Apps Script,
-// pero Apps Script no devuelve el header CORS necesario para que fetch()
-// le hable desde un sitio externo (limitación conocida de la plataforma,
-// no de esta configuración). Queda documentado en Code.gs por si se
-// retoma más adelante con otro backend (ej. Cloudflare Workers, que sí
-// soporta CORS de forma nativa y también es gratuito).
+// URL del backend de Gemini (Google Apps Script), desplegado desde
+// backend/Code.gs. Se confirmó que GET sí devuelve CORS correctamente
+// desde este sitio (a diferencia de POST, que Apps Script no soporta
+// bien para peticiones cross-origin). Si algún día se reemplaza por otro
+// backend (ej. Cloudflare Workers), basta con cambiar esta URL.
+const GEMINI_BACKEND_URL = "https://script.google.com/macros/s/AKfycbwfJnMjreQuhBeg9tbvltVlHaqiCpTCHPeHIhJZaCmYOtLN6shpjyCYynkrR57utQ0Q6A/exec";
 
 // Se usa jsDelivr (CDN sobre GitHub) en vez de raw.githubusercontent.com:
 // GitHub raw sirve los PDF como application/octet-stream (fuerza una
