@@ -17,6 +17,79 @@ const GEMINI_BACKEND_URL = "";
 // soporta CORS de forma nativa y también es gratuito).
 
 const BASE_RAW_URL = "https://raw.githubusercontent.com/smartmemorygb/smartmemory/main/pdfs";
+// Formatos FR individuales (plantillas/actas que se diligencian en campo).
+// Carpeta separada en el mismo repo: cada código mapea a <BASE_FORMATOS_URL>/<código>.pdf
+const BASE_FORMATOS_URL = "https://raw.githubusercontent.com/smartmemorygb/smartmemory/main/formatos";
+
+// Nombre descriptivo de cada formato FR. Se usa para generar el enlace
+// clicable directamente dentro de las respuestas del chat (citas <span class="cite">)
+// y en la columna "Cita" de las tablas de checklist.
+const FORMATOS = {
+    "MEPI-MN1-IN-1-FR-1": "Orden de Inicio Contrato de Interventoría",
+    "MEPI-MN1-IN-1-FR-2": "Orden de Inicio Contrato de Obra",
+    "MEPI-MN1-IN-1-FR-3": "Acta Reunión Técnica Inicial",
+    "MEPI-MN1-IN-1-FR-4": "Acta Aprobación Parcial de Estudios y Diseños",
+    "MEPI-MN1-IN-1-FR-5": "Acta Aprobación Definitiva de Estudios y Diseños",
+    "MEPI-MN1-IN-2-FR-1": "Plan de Inversión del Anticipo (Obra)",
+    "MEPI-MN1-IN-2-FR-2": "Informe de Inversión y Buen Manejo (Obra)",
+    "MEPI-MN1-IN-3-FR-1": "Plan de Inversión del Anticipo (Interventoría)",
+    "MEPI-MN1-IN-3-FR-2": "Informe de Inversión y Buen Manejo (Interventoría)",
+    "MEPI-MN1-IN-4-FR-1": "Acta de Recibo Parcial de Obra",
+    "MEPI-MN1-IN-4-FR-2": "Hoja de Ruta y Orden de Pago (Obra)",
+    "MEPI-MN1-IN-5-FR-1": "Acta de Ajuste (caso general)",
+    "MEPI-MN1-IN-5-FR-2": "Acta de Ajuste (factor Ia)",
+    "MEPI-MN1-IN-6-FR-1": "Programa de Inversiones",
+    "MEPI-MN1-IN-6-FR-2": "Seguimiento Mensual al Programa de Inversiones",
+    "MEPI-MN1-IN-7-FR-1": "Acta de Modificación de Cantidades de Obra",
+    "MEPI-MN1-IN-8-FR-1": "Acta de Costos (Interventoría)",
+    "MEPI-MN1-IN-8-FR-2": "Hoja de Ruta y Orden de Pago (Interventoría)",
+    "MEPI-MN1-IN-9-FR-1": "Acta de Modificación de Costos",
+    "MEPI-MN1-IN-9-FR-2": "Plan de Cargas / Reprogramación al Plan de Cargas",
+    "MEPI-MN1-IN-10-FR-1": "Análisis de Precios Unitarios (APU)",
+    "MEPI-MN1-IN-10-FR-2": "Comparación de Precios Unitarios de Ítems No Previstos",
+    "MEPI-MN1-IN-10-FR-3": "Reversión de Precios No Previstos",
+    "MEPI-MN1-IN-10-FR-4": "Acta de Fijación de Ítems No Previstos",
+    "MEPI-MN1-IN-11-FR-1": "Acta de Suspensión (Obra)",
+    "MEPI-MN1-IN-11-FR-2": "Acta de Suspensión (Interventoría)",
+    "MEPI-MN1-IN-11-FR-3": "Acta de Reanudación (Obra)",
+    "MEPI-MN1-IN-11-FR-4": "Acta de Reanudación (Interventoría)",
+    "MEPI-MN1-IN-12-FR-1": "Solicitud de Adición, Modificación y/o Prórroga (Obra)",
+    "MEPI-MN1-IN-13-FR-1": "Solicitud de Adición, Modificación y/o Prórroga (Interventoría)",
+    "MEPI-MN1-IN-14-FR-1": "Acta de Comité de Obra",
+    "MEPI-MN1-IN-14-FR-2": "Acta de Reunión",
+    "MEPI-MN1-IN-15-FR-1": "Lista de Chequeo Informe Mensual de Interventoría",
+    "MEPI-MN1-IN-15-FR-2": "Resumen Mensual Estado General del Proyecto",
+    "MEPI-MN1-IN-15-FR-3": "Informe Semanal",
+    "MEPI-MN1-IN-15-FR-4": "Maquinaria y Equipo (Contrato de Obra)",
+    "MEPI-MN1-IN-15-FR-5": "Equipo y Vehículos (Contrato de Interventoría)",
+    "MEPI-MN1-IN-15-FR-6": "Personal, Control (Contrato de Obra)",
+    "MEPI-MN1-IN-15-FR-7": "Personal, Control (Contrato de Interventoría)",
+    "MEPI-MN1-IN-15-FR-8": "Informe Financiero y Presupuestal (Contrato de Obra)",
+    "MEPI-MN1-IN-15-FR-9": "Informe Financiero y Presupuestal (Interventoría)",
+    "MEPI-MN1-IN-15-FR-10": "Estado General del Tiempo",
+    "MEPI-MN1-IN-15-FR-11": "Resumen Ensayos de Laboratorio",
+    "MEPI-MN1-IN-15-FR-12": "Seguimiento Garantías y Seguros (Contrato de Obra)",
+    "MEPI-MN1-IN-15-FR-13": "Seguimiento Garantías (Contrato de Interventoría)",
+    "MEPI-MN1-IN-15-FR-14": "Seguimiento al Plan de Calidad (Contrato de Obra)",
+    "MEPI-MN1-IN-15-FR-15": "Seguimiento Plan de Calidad (Contrato de Interventoría)",
+    "MEPI-MN1-IN-16-FR-1": "Acta de Visita Previa para Recibo Definitivo de Obra",
+    "MEPI-MN1-IN-16-FR-2": "Acta de Entrega y Recibo Definitivo de Obra",
+    "MEPI-MN1-IN-17-FR-1": "Acta de Entrega y Recibo Definitivo de Interventoría",
+    "MEPI-MN1-IN-18-FR-1": "Acta de Liquidación (Obra)",
+    "MEPI-MN1-IN-18-FR-2": "Acta de Liquidación (Interventoría)",
+    "MEPI-MN1-IN-18-FR-3": "Acta de Liquidación — Saldo a favor (variante 1)",
+    "MEPI-MN1-IN-18-FR-4": "Acta de Liquidación — Saldo a favor (variante 2)"
+};
+
+// Si el texto de cita empieza con un código de formato FR conocido, lo
+// convierte en enlace directo al PDF del formato (abre en pestaña nueva).
+function renderCitation(text) {
+    const m = String(text).match(/^(MEPI-MN1-IN-\d+-FR-\d+)/);
+    if (m && FORMATOS[m[1]]) {
+        return `<a class="cite-link" href="${BASE_FORMATOS_URL}/${m[1]}.pdf" target="_blank" title="${FORMATOS[m[1]]}">${text} 📎</a>`;
+    }
+    return text;
+}
 
 /* ---------------------- 1. ÍNDICE DE PROCEDIMIENTOS ---------------------- */
 const PROCEDURE_INDEX = {
@@ -783,11 +856,29 @@ const app = {
     renderManuals() {
         const container = document.getElementById("manual-list");
         if (!container) return;
-        container.innerHTML = Object.entries(MANUAL_STRUCTURE).map(([key, group]) => `
+        const manualsHtml = Object.entries(MANUAL_STRUCTURE).map(([key, group]) => `
             <div class="doc-group">
                 <h5>${group.title}</h5>
                 ${group.docs.map(d => `<a class="doc-link" href="${d.url}" target="_blank">📄 ${d.code} — ${d.name}</a>`).join("")}
             </div>`).join("");
+
+        // Formatos FR individuales, agrupados por instructivo (IN-1, IN-2, ...).
+        const byInstructivo = {};
+        Object.entries(FORMATOS).forEach(([code, name]) => {
+            const base = code.split("-FR-")[0];
+            (byInstructivo[base] = byInstructivo[base] || []).push({ code, name });
+        });
+        const sortedBases = Object.keys(byInstructivo).sort((a, b) =>
+            parseInt(a.match(/IN-(\d+)/)[1]) - parseInt(b.match(/IN-(\d+)/)[1]));
+        const formatosHtml = `
+            <div class="nav-label" style="margin-top:16px;">Formatos (FR)</div>
+            ${sortedBases.map(base => `
+                <div class="doc-group">
+                    <h5>${base}</h5>
+                    ${byInstructivo[base].map(f => `<a class="doc-link" href="${BASE_FORMATOS_URL}/${f.code}.pdf" target="_blank">📎 FR-${f.code.split("-FR-")[1]} — ${f.name}</a>`).join("")}
+                </div>`).join("")}`;
+
+        container.innerHTML = manualsHtml + formatosHtml;
     },
 
     showDocs(procId) {
@@ -806,7 +897,7 @@ const app = {
             <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:12px;">${p.summary}</p>
             <table class="checklist-table">
                 <tr><th>Paso</th><th>Responsable</th><th>Cita</th></tr>
-                ${p.checklist.map(c => `<tr><td>${c.step}</td><td>${c.responsible}</td><td>${c.citation}</td></tr>`).join("")}
+                ${p.checklist.map(c => `<tr><td>${c.step}</td><td>${c.responsible}</td><td>${renderCitation(c.citation)}</td></tr>`).join("")}
             </table>
             <button class="chip" style="margin-top:14px;" onclick="app.openChecklistModal('${procId}')">Ver checklist completo / Exportar CSV</button>`;
 
@@ -824,7 +915,7 @@ const app = {
         document.getElementById("modal-body").innerHTML = `
             <table class="checklist-table">
                 <tr><th>Paso</th><th>Evidencia</th><th>Responsable</th><th>Cita</th></tr>
-                ${p.checklist.map(c => `<tr><td>${c.step}</td><td>${c.evidence}</td><td>${c.responsible}</td><td>${c.citation}</td></tr>`).join("")}
+                ${p.checklist.map(c => `<tr><td>${c.step}</td><td>${c.evidence}</td><td>${c.responsible}</td><td>${renderCitation(c.citation)}</td></tr>`).join("")}
             </table>
             <button class="chip" style="margin-top:14px;" onclick="app.exportCSV('${procId}')">⬇ Exportar CSV</button>`;
         modal.classList.add("open");
@@ -929,7 +1020,12 @@ const app = {
 
 document.addEventListener("click", (e) => {
     if (e.target.classList.contains("cite")) {
-        const code = e.target.dataset.doc.split("-FR-")[0];
+        const fullCode = e.target.dataset.doc; // ej. MEPI-MN1-IN-11-FR-1
+        if (FORMATOS[fullCode]) {
+            window.open(`${BASE_FORMATOS_URL}/${fullCode}.pdf`, "_blank");
+            return;
+        }
+        const code = fullCode.split("-FR-")[0];
         const proc = Object.values(PROCEDURE_INDEX).find(p => p.source_id === code);
         if (proc) app.showDocs(proc.id);
     }

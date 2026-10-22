@@ -205,6 +205,8 @@ html, body {
     border: 1px solid #ffd9a8;
 }
 .msg.bot .cite:hover { background: var(--primary); color: #fff; }
+.cite-link { color: var(--primary-hover); font-weight: 600; text-decoration: none; white-space: nowrap; }
+.cite-link:hover { text-decoration: underline; }
 .msg.loading { align-self: flex-start; color: var(--text-muted); font-style: italic; font-size: 12.5px; }
 
 .quick-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
