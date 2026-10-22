@@ -36,6 +36,7 @@ const FORMATOS = {
     "MEPI-MN1-IN-3-FR-2": "Informe de Inversión y Buen Manejo (Interventoría)",
     "MEPI-MN1-IN-4-FR-1": "Acta de Recibo Parcial de Obra",
     "MEPI-MN1-IN-4-FR-2": "Hoja de Ruta y Orden de Pago (Obra)",
+    "MEPI-MN1-IN-4-FR-3": "Recibo Parcial de Mantenimiento Rutinario",
     "MEPI-MN1-IN-5-FR-1": "Acta de Ajuste (caso general)",
     "MEPI-MN1-IN-5-FR-2": "Acta de Ajuste (factor Ia)",
     "MEPI-MN1-IN-6-FR-1": "Programa de Inversiones",
