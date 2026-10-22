@@ -1,10 +1,10 @@
 :root {
-    /* Paleta institucional INVIAS (verificada en invias.gov.co) */
-    --primary: #FF8300;          /* Naranja INVIAS */
-    --primary-hover: #e67600;
-    --primary-light: #fff4e8;
-    --secondary: #0943B5;        /* Azul oscuro institucional */
-    --secondary-hover: #073a99;
+    /* Paleta institucional INVIAS (verificada en invias.gov.co) — azul como color primario, naranja como secundario */
+    --primary: #0943B5;          /* Azul oscuro institucional */
+    --primary-hover: #073a99;
+    --primary-light: #eaf0fc;
+    --secondary: #FF8300;        /* Naranja INVIAS */
+    --secondary-hover: #e67600;
     --accent: #3366CC;           /* Azul gov.co */
     --bg-app: #f7f8fa;
     --bg-card: #ffffff;
@@ -21,11 +21,11 @@
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-        --primary: #FF9D33;
-        --primary-hover: #FFB35C;
-        --primary-light: #3a2a14;
-        --secondary: #5b8def;
-        --secondary-hover: #7aa3f2;
+        --primary: #5b8def;
+        --primary-hover: #7aa3f2;
+        --primary-light: #16233a;
+        --secondary: #FF9D33;
+        --secondary-hover: #FFB35C;
         --accent: #6c93e0;
         --bg-app: #10151f;
         --bg-card: #171d2a;
@@ -36,11 +36,11 @@
     }
 }
 :root[data-theme="dark"] {
-    --primary: #FF9D33;
-    --primary-hover: #FFB35C;
-    --primary-light: #3a2a14;
-    --secondary: #5b8def;
-    --secondary-hover: #7aa3f2;
+    --primary: #5b8def;
+    --primary-hover: #7aa3f2;
+    --primary-light: #16233a;
+    --secondary: #FF9D33;
+    --secondary-hover: #FFB35C;
     --accent: #6c93e0;
     --bg-app: #10151f;
     --bg-card: #171d2a;
@@ -69,7 +69,7 @@ html, body {
 
 /* ===== Sidebar ===== */
 .sidebar {
-    background: linear-gradient(180deg, var(--secondary) 0%, #072e82 100%);
+    background: linear-gradient(180deg, var(--secondary) 0%, #7a3b00 100%);
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -85,12 +85,14 @@ html, body {
 }
 
 .brand-badge {
-    width: 38px; height: 38px;
-    background: var(--primary);
+    width: 40px; height: 40px;
+    background: #fff;
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 18px; color: #fff;
+    object-fit: contain;
+    padding: 4px;
     flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 .brand-text h1 { font-size: 15px; font-weight: 700; line-height: 1.2; }
@@ -202,7 +204,7 @@ html, body {
     margin: 2px 2px;
     cursor: pointer;
     text-decoration: none;
-    border: 1px solid #ffd9a8;
+    border: 1px solid #bcd0f5;
 }
 .msg.bot .cite:hover { background: var(--primary); color: #fff; }
 .cite-link { color: var(--primary-hover); font-weight: 600; text-decoration: none; white-space: nowrap; }
@@ -285,7 +287,7 @@ html, body {
     cursor: pointer;
     transition: all 0.15s;
 }
-.proc-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(255,131,0,0.08); }
+.proc-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(9,67,181,0.1); }
 .proc-card h4 { font-size: 13px; color: var(--secondary); margin-bottom: 3px; }
 .proc-card p { font-size: 11.5px; color: var(--text-muted); }
 .proc-card .code { font-size: 10.5px; color: var(--primary-hover); font-weight: 600; margin-top: 4px; display: block; }

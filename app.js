@@ -16,10 +16,15 @@ const GEMINI_BACKEND_URL = "";
 // retoma más adelante con otro backend (ej. Cloudflare Workers, que sí
 // soporta CORS de forma nativa y también es gratuito).
 
-const BASE_RAW_URL = "https://raw.githubusercontent.com/smartmemorygb/smartmemory/main/pdfs";
+// Se usa jsDelivr (CDN sobre GitHub) en vez de raw.githubusercontent.com:
+// GitHub raw sirve los PDF como application/octet-stream (fuerza una
+// descarga silenciosa en vez de abrir el visor del navegador); jsDelivr
+// sirve el content-type correcto (application/pdf) y además cachea el
+// contenido, por lo que los enlaces de cita cargan más rápido.
+const BASE_RAW_URL = "https://cdn.jsdelivr.net/gh/smartmemorygb/smartmemory@main/pdfs";
 // Formatos FR individuales (plantillas/actas que se diligencian en campo).
 // Carpeta separada en el mismo repo: cada código mapea a <BASE_FORMATOS_URL>/<código>.pdf
-const BASE_FORMATOS_URL = "https://raw.githubusercontent.com/smartmemorygb/smartmemory/main/formatos";
+const BASE_FORMATOS_URL = "https://cdn.jsdelivr.net/gh/smartmemorygb/smartmemory@main/formatos";
 
 // Nombre descriptivo de cada formato FR. Se usa para generar el enlace
 // clicable directamente dentro de las respuestas del chat (citas <span class="cite">)
@@ -813,6 +818,39 @@ const MANUAL_STRUCTURE = {
     }
 };
 
+/* ============================= UTILIDADES ============================= */
+
+// Quita tildes/diacríticos y pasa a minúsculas, para comparar texto sin
+// que un acento (o la falta de uno) cambie el resultado de la búsqueda.
+function normalizeText(str) {
+    return (str || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+// Compara una palabra clave de la base de conocimiento contra la pregunta
+// del usuario. Primero intenta una coincidencia exacta de substring (rápida);
+// si no la encuentra, compara por "raíz" de cada palabra (quitando tildes y
+// usando solo sus primeros caracteres) para tolerar variaciones de forma
+// (ej. "suspende"/"suspenden" vs. "suspensión").
+function keywordMatches(query, keyword) {
+    const nq = normalizeText(query);
+    const nk = normalizeText(keyword);
+    if (nq.includes(nk)) return true;
+    const words = nk.split(/\s+/).filter(w => w.length >= 4);
+    if (words.length === 0) return false;
+    return words.every(w => nq.includes(w.slice(0, Math.min(w.length, 6))));
+}
+
+// Convierte Markdown (encabezados, negrilla, cursiva, listas) a HTML.
+// Las citas embebidas (<span class="cite" data-doc="...">) son HTML crudo
+// dentro del texto y marked las deja pasar sin tocarlas.
+function renderMarkdown(text) {
+    if (window.marked) {
+        try { return marked.parse(text); } catch (e) { /* si falla, se muestra el texto plano */ }
+    }
+    return text;
+}
+if (window.marked) marked.setOptions({ breaks: true, gfm: true });
+
 /* ============================= APP LOGIC ============================= */
 const app = {
     currentProcedure: null,
@@ -821,12 +859,28 @@ const app = {
         this.renderNav();
         this.renderProcList();
         this.renderManuals();
+        this.renderDefaultRelaciones();
         this.bindEvents();
         this.greet();
     },
 
     greet() {
-        this.addMessage("bot", `¡Hola! Soy **Smart Memory**, tu asistente del Manual de Interventoría de INVIAS. Cubro los 18 instructivos del MEPI — anticipos, actas de pago y ajustes, programa de inversiones, modificaciones, suspensiones, comités, informes, recibos definitivos y liquidación. Pregúntame lo que necesites y te responderé citando la fuente exacta.`);
+        this.addMessage("bot", `¡Hola! Soy **Smart Memory**, tu asistente del Manual de Interventoría de INVIAS. Cubro todos los instructivos y formatos de la última versión aprobada del Manual. Pregúntame lo que necesites y te responderé citando la fuente exacta.`);
+    },
+
+    // Deja la pestaña "Relaciones" con el flujo del primer procedimiento
+    // visible desde que carga la página, en vez de un panel vacío.
+    renderDefaultRelaciones() {
+        const first = Object.values(PROCEDURE_INDEX)[0];
+        const container = document.getElementById("tab-relaciones");
+        if (!first || !container) return;
+        container.innerHTML = `
+            <p style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">Mostrando el flujo de <strong>${first.title}</strong>. Selecciona otro procedimiento (en "Detalles" o en el panel izquierdo) para ver el suyo.</p>
+            <div id="mermaid-container"><pre class="mermaid">${first.graph}</pre></div>`;
+        if (window.mermaid) {
+            container.querySelector(".mermaid").removeAttribute("data-processed");
+            mermaid.init(undefined, container.querySelectorAll(".mermaid"));
+        }
     },
 
     renderNav() {
@@ -952,24 +1006,38 @@ const app = {
         document.getElementById("modal-close")?.addEventListener("click", () => this.closeModal());
         document.getElementById("sidebar-toggle")?.addEventListener("click", () => document.querySelector(".sidebar").classList.toggle("open"));
         document.getElementById("details-toggle")?.addEventListener("click", () => document.querySelector(".details-panel").classList.toggle("open"));
+        document.getElementById("global-search")?.addEventListener("input", (e) => this.filterProcedures(e.target.value));
+    },
+
+    // Filtra en vivo el panel izquierdo (nav) y la lista de "Detalles" por
+    // título o código de procedimiento, sin tildes y sin distinguir mayúsculas.
+    filterProcedures(term) {
+        const t = normalizeText(term.trim());
+        document.querySelectorAll("#nav-procedures .nav-item").forEach(el => {
+            el.style.display = !t || normalizeText(el.textContent).includes(t) ? "" : "none";
+        });
+        document.querySelectorAll("#proc-list .proc-card").forEach(el => {
+            el.style.display = !t || normalizeText(el.textContent).includes(t) ? "" : "none";
+        });
     },
 
     addMessage(role, html) {
         const box = document.getElementById("chat-messages");
         const div = document.createElement("div");
         div.className = `msg ${role}`;
-        div.innerHTML = html;
+        // El Markdown (###, **negrilla**, listas) solo se interpreta en los
+        // mensajes del bot; el texto del usuario se muestra tal cual lo escribió.
+        div.innerHTML = role === "bot" ? renderMarkdown(html) : html;
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
         return div;
     },
 
     findInKB(query) {
-        const q = query.toLowerCase();
         let best = null, bestScore = 0;
         KNOWLEDGE_BASE.forEach(entry => {
             let score = 0;
-            entry.keywords.forEach(k => { if (q.includes(k.toLowerCase())) score += k.length; });
+            entry.keywords.forEach(k => { if (keywordMatches(query, k)) score += k.length; });
             if (score > bestScore) { bestScore = score; best = entry; }
         });
         return bestScore > 0 ? best : null;
@@ -1008,7 +1076,7 @@ const app = {
             const data = await resp.json();
             loadingMsg.remove();
             if (data.answer) {
-                this.addMessage("bot", data.answer.replace(/\n/g, "<br>") + `<br><small style="color:var(--text-muted)">🤖 Respuesta generada por IA — verifica siempre contra el manual oficial.</small>`);
+                this.addMessage("bot", data.answer + `<br><small style="color:var(--text-muted)">🤖 Respuesta generada por IA — verifica siempre contra el manual oficial.</small>`);
             } else {
                 this.addMessage("bot", "El servicio de IA no respondió correctamente. Intenta reformular tu pregunta.");
             }

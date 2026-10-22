@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Memory — Protocolo INVIAS</title>
+<title>Smart Memory — Manual de Interventoría INVIAS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,10 +16,10 @@
   <!-- ===== Sidebar ===== -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-badge">SM</div>
+      <img class="brand-badge" src="assets/invias-icon.png" alt="INVIAS">
       <div class="brand-text">
         <h1>Smart Memory</h1>
-        <span>Protocolo INVIAS</span>
+        <span>Memoria Inteligente del Manual de Interventoría</span>
       </div>
     </div>
     <div class="status-pill">
@@ -37,8 +38,8 @@
     <header class="main-header">
       <button class="mobile-toggle" id="sidebar-toggle">☰</button>
       <div>
-        <h2>Consulta Técnica MEPI</h2>
-        <p>Pregunta en lenguaje natural sobre el Manual de Interventoría</p>
+        <h2>¿Pregúntale al Manual?</h2>
+        <p>Respuestas con la cita exacta del instructivo o formato correspondiente.</p>
       </div>
       <div class="search-box">
         <span>🔎</span>
@@ -97,7 +98,7 @@
 
 <script>
   if (window.mermaid) mermaid.initialize({ startOnLoad: false, securityLevel: 'loose', theme: 'base',
-    themeVariables: { primaryColor: '#fff4e8', primaryBorderColor: '#FF8300', lineColor: '#0943B5', primaryTextColor: '#10213f' } });
+    themeVariables: { primaryColor: '#eaf0fc', primaryBorderColor: '#0943B5', lineColor: '#FF8300', primaryTextColor: '#10213f' } });
 </script>
 <script src="app.js"></script>
 </body>
