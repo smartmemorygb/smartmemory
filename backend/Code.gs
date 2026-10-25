@@ -51,7 +51,12 @@ function callGemini(question, context) {
       GEMINI_MODEL + ":generateContent";
 
     const payload = {
-      contents: [{ parts: [{ text: prompt }] }]
+      contents: [{ parts: [{ text: prompt }] }],
+      // gemini-3.8-flash activa "pensamiento" en nivel medio por defecto,
+      // lo que añade varios segundos de latencia innecesarios para un chat
+      // de preguntas y respuestas cortas. Lo bajamos a "low" para que
+      // responda rápido, igual que el modelo anterior.
+      generationConfig: { thinkingConfig: { thinkingLevel: "low" } }
     };
 
     const response = UrlFetchApp.fetch(url, {
