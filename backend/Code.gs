@@ -31,7 +31,31 @@
  */
 
 const GEMINI_API_KEY = "PEGA_AQUI_TU_API_KEY_DE_AI_STUDIO"; // <-- reemplazar
-const GEMINI_MODEL = "gemini-3.8-flash"; // modelo gratuito y rápido vigente (gemini-2.0-flash fue retirado)
+const GEMINI_MODEL = "gemini-3.8-flash"; // modelo principal, vigente (gemini-2.0-flash fue retirado)
+const GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite"; // respaldo más liviano si el principal está saturado
+
+function callGeminiModel(model, prompt) {
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+    model + ":generateContent";
+
+  const payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    // Baja el "pensamiento" a nivel mínimo: para un chat de preguntas y
+    // respuestas cortas, el nivel por defecto (medium) solo añade
+    // segundos de latencia sin mejorar la respuesta.
+    generationConfig: { thinkingConfig: { thinkingLevel: "low" } }
+  };
+
+  const response = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    headers: { "x-goog-api-key": GEMINI_API_KEY },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  return JSON.parse(response.getContentText());
+}
 
 function callGemini(question, context) {
   try {
@@ -47,36 +71,24 @@ function callGemini(question, context) {
       "CONTEXTO (instructivos disponibles en la base local):\n" + context + "\n\n" +
       "PREGUNTA: " + question;
 
-    const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
-      GEMINI_MODEL + ":generateContent";
+    // Intenta el modelo principal; si está saturado (alta demanda / 503),
+    // reintenta una sola vez con el modelo de respaldo antes de rendirse.
+    const models = [GEMINI_MODEL, GEMINI_FALLBACK_MODEL];
+    let lastError = null;
 
-    const payload = {
-      contents: [{ parts: [{ text: prompt }] }],
-      // gemini-3.8-flash activa "pensamiento" en nivel medio por defecto,
-      // lo que añade varios segundos de latencia innecesarios para un chat
-      // de preguntas y respuestas cortas. Lo bajamos a "low" para que
-      // responda rápido, igual que el modelo anterior.
-      generationConfig: { thinkingConfig: { thinkingLevel: "low" } }
-    };
+    for (let i = 0; i < models.length; i++) {
+      const json = callGeminiModel(models[i], prompt);
 
-    const response = UrlFetchApp.fetch(url, {
-      method: "post",
-      contentType: "application/json",
-      headers: { "x-goog-api-key": GEMINI_API_KEY },
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    });
-
-    const json = JSON.parse(response.getContentText());
-
-    if (json.candidates && json.candidates[0] && json.candidates[0].content) {
-      return json.candidates[0].content.parts[0].text;
-    } else if (json.error) {
-      // Devuelve el motivo real (ej: límite de cuota excedido o API key
-      // inválida) para poder depurar.
-      return "⚠️ Gemini no respondió: " + (json.error.message || JSON.stringify(json.error));
+      if (json.candidates && json.candidates[0] && json.candidates[0].content) {
+        return json.candidates[0].content.parts[0].text;
+      }
+      lastError = json.error;
+      if (i < models.length - 1) Utilities.sleep(600);
     }
-    return "No se pudo generar una respuesta en este momento.";
+
+    // Devuelve el motivo real (ej: límite de cuota excedido o API key
+    // inválida) para poder depurar, tras agotar los reintentos.
+    return "⚠️ Gemini no respondió: " + (lastError ? (lastError.message || JSON.stringify(lastError)) : "sin detalles adicionales.");
 
   } catch (err) {
     return "Error interno: " + err.message;
