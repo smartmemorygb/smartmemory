@@ -76,11 +76,7 @@ const FORMATOS = {
     "MEPI-MN1-IN-15-FR-15": "Seguimiento Plan de Calidad (Contrato de Interventoría)",
     "MEPI-MN1-IN-16-FR-1": "Acta de Visita Previa para Recibo Definitivo de Obra",
     "MEPI-MN1-IN-16-FR-2": "Acta de Entrega y Recibo Definitivo de Obra",
-    "MEPI-MN1-IN-17-FR-1": "Acta de Entrega y Recibo Definitivo de Interventoría",
-    "MEPI-MN1-IN-18-FR-1": "Acta de Liquidación (Obra)",
-    "MEPI-MN1-IN-18-FR-2": "Acta de Liquidación (Interventoría)",
-    "MEPI-MN1-IN-18-FR-3": "Acta de Liquidación — Saldo a favor (variante 1)",
-    "MEPI-MN1-IN-18-FR-4": "Acta de Liquidación — Saldo a favor (variante 2)"
+    "MEPI-MN1-IN-17-FR-1": "Acta de Entrega y Recibo Definitivo de Interventoría"
 };
 
 // Si el texto de cita empieza con un código de formato FR conocido, lo
@@ -415,25 +411,6 @@ const PROCEDURE_INDEX = {
             CORR --> ACTA[Acta Entrega y Recibo Definitivo Obra FR-2]
             ACTA --> SIIF[Verificación Financiera vs SIIF]
             click ACTA call app.showDocs("recibo_obra")`
-    },
-    liquidacion: {
-        id: "liquidacion",
-        title: "Acta de Liquidación (Obra e Interventoría)",
-        source_id: "MEPI-MN1-IN-18",
-        summary: "Liquidación por mutuo acuerdo o unilateral de los contratos de obra y de interventoría — el cierre final de todo el proceso contractual.",
-        checklist: [
-            { step: "Liquidación por mutuo acuerdo dentro del plazo pactado contractualmente", evidence: "Formato FR-1 (obra) / FR-2 (interventoría)", responsible: "Interventor + Unidad Ejecutora", citation: "MEPI-MN1-IN-18 §III.7" },
-            { step: "Si no hay acuerdo o el Contratista no se presenta: liquidación unilateral dentro de 2 meses", evidence: "Resolución de liquidación unilateral", responsible: "INVIAS", citation: "MEPI-MN1-IN-18 §III.8" },
-            { step: "Verificar estado de amortización del anticipo (certificación Subdirección Financiera)", evidence: "Memorando Grupo de Contabilidad", responsible: "Interventor", citation: "MEPI-MN1-IN-18 §IV.7" },
-            { step: "Determinar caso: saldo a favor de INVIAS, del Contratista/Interventor, o ambos (FR-3/FR-4)", evidence: "Formato FR-3/FR-4", responsible: "Unidad Ejecutora", citation: "MEPI-MN1-IN-18-FR-3" },
-            { step: "No se puede liquidar con un proceso sancionatorio en curso sin terminar primero", evidence: "N/A", responsible: "INVIAS", citation: "MEPI-MN1-IN-18 §III.4" },
-        ],
-        graph: `graph TD
-            RECIBO[Acta Recibo Definitivo Obra/Interventoría] --> DOC[Expediente de Liquidación]
-            DOC --> MUTUO[Liquidación Mutuo Acuerdo]
-            MUTUO -->|Sin acuerdo| UNILAT[Liquidación Unilateral]
-            MUTUO --> SALDO[Determinación de Saldos FR-1 a FR-4]
-            click SALDO call app.showDocs("liquidacion")`
     }
 };
 
@@ -720,23 +697,6 @@ El día del vencimiento se suscribe el **Acta de Entrega y Recibo Definitivo de 
         evidence: [{ source_id: "MEPI-MN1-IN-16", source_name: "Instructivo Visita Previa y Recibo Definitivo de Obra", snippet: "Si las observaciones y compromisos descritos en el acta de visita previa no son atendidos por parte del Contratista, el Interventor debe proceder a efectuar el recibo definitivo de las obras en el estado en que se encuentren." }],
         location: "MEPI-MN1-IN-16, secciones III a V",
         tags: ["Recibo Definitivo de Obra", "Visita Previa"]
-    },
-    {
-        id: "kb-liquidacion",
-        procedureId: "liquidacion",
-        keywords: ["liquidación", "liquidacion del contrato", "cierre del contrato", "acta de liquidación"],
-        responseContent: `#### Acta de Liquidación — Obra e Interventoría
-
-El **cierre final** de todo el proceso contractual, por mutuo acuerdo o, en su defecto, unilateral. Formatos: <span class="cite" data-doc="MEPI-MN1-IN-18-FR-1">FR-1</span> (obra), <span class="cite" data-doc="MEPI-MN1-IN-18-FR-2">FR-2</span> (interventoría), y FR-3/FR-4 cuando hay saldo a favor de las partes.
-
-**Puntos clave:**
-- Si no hay acuerdo o el Contratista no se presenta, INVIAS liquida **unilateralmente dentro de 2 meses** siguientes al vencimiento del plazo para mutuo acuerdo.
-- **No se puede liquidar** mientras esté en curso un procedimiento administrativo sancionatorio (debe terminar primero).
-- Se determina uno de 3 casos: saldo a favor de INVIAS, del Contratista/Interventor, o de ambos (prevalece el mayor).
-- Requiere certificación de la Subdirección Financiera sobre el estado de amortización del anticipo.`,
-        evidence: [{ source_id: "MEPI-MN1-IN-18", source_name: "Instructivo Acta de Liquidación", snippet: "Estando en curso un procedimiento administrativo sancionatorio en contra del Contratista o Interventor, solo podrá liquidarse el contrato una vez culminado dicho procedimiento." }],
-        location: "MEPI-MN1-IN-18, secciones III a VII",
-        tags: ["Liquidación", "Cierre del Contrato"]
     }
 ];
 
@@ -760,8 +720,7 @@ const CONTENT_STORE = {
     modificacion_costos: "MEPI-MN1-IN-9. Instructivo Acta de Modificación de Costos y Plan de Cargas. Surge por actualización de tarifas, contrato adicional, prórroga o suspensión (FR-1). Plan de Cargas Inicial (FR-2) se presenta dentro de 10 días calendario desde el inicio del contrato. Salvo adición en valor, las modificaciones deben mantener el valor total del contrato (redistribución de recursos). La Reprogramación al Plan de Cargas debe coincidir con la Ejecución Total Acumulada del Acta en trámite. El Plan de Cargas Final se presenta junto con el Acta de Entrega y Recibo Definitivo de Interventoría.",
     adicion_obra: "MEPI-MN1-IN-12. Instructivo Solicitud de Adición, Modificación y Prórroga Contrato de Obra. El Contratista presenta solicitud escrita a la Interventoría, quien diligencia FR-1 con justificación técnica, jurídica, financiera, presupuestal, ambiental, social, predial y de sostenibilidad. Anexar proyecto de Acta de Modificación de Cantidades de Obra y Reprogramación al Programa de Inversiones. Verificar garantías y seguros actualizados antes de la minuta. Presentación con antelación mínima de 30 días calendario al vencimiento. Solo se entiende aprobada con la suscripción del Acta del Comité de Contratación.",
     comite_reunion: "MEPI-MN1-IN-14. Instructivo Acta de Comité de Obra y de Reunión. El Comité de Obra es semanal, dirigido por la Interventoría, para seguimiento físico, financiero, ambiental, social y predial (FR-1). Directores y personal con dedicación 100% deben asistir presencialmente. Para reuniones distintas al Comité (pueden ser virtuales) se usa el Acta de Reunión (FR-2). Las decisiones del Comité no modifican por sí solas el contrato de obra ni de interventoría — se requiere el trámite contractual formal.",
-    recibo_obra: "MEPI-MN1-IN-16. Instructivo Visita Previa y Recibo Definitivo de Obra. Distinto del recibo de la Interventoría (IN-17): aquí se recibe la obra física. Visita previa conjunta (FR-1) con mínimo 30 días calendario antes del vencimiento (15 días si el plazo es menor a 6 meses), documentando con fotos correcciones pendientes. El día del vencimiento se suscribe el Acta de Entrega y Recibo Definitivo de Obra (FR-2). Si el Contratista no corrige lo pactado, el Interventor recibe la obra en el estado en que se encuentre, descontando el valor de lo no corregido e iniciando el proceso sancionatorio.",
-    liquidacion: "MEPI-MN1-IN-18. Instructivo Acta de Liquidación. Cierre final del proceso contractual (obra e interventoría), por mutuo acuerdo o, en su defecto, unilateral. Formatos FR-1 (obra), FR-2 (interventoría), FR-3/FR-4 (saldo a favor de las partes). Si no hay acuerdo o el Contratista no se presenta, INVIAS liquida unilateralmente dentro de 2 meses siguientes al vencimiento del plazo para mutuo acuerdo. No se puede liquidar mientras esté en curso un procedimiento administrativo sancionatorio. Se determina uno de 3 casos de saldo (a favor de INVIAS, del Contratista/Interventor, o de ambos, prevaleciendo el mayor). Requiere certificación de la Subdirección Financiera sobre el estado de amortización del anticipo."
+    recibo_obra: "MEPI-MN1-IN-16. Instructivo Visita Previa y Recibo Definitivo de Obra. Distinto del recibo de la Interventoría (IN-17): aquí se recibe la obra física. Visita previa conjunta (FR-1) con mínimo 30 días calendario antes del vencimiento (15 días si el plazo es menor a 6 meses), documentando con fotos correcciones pendientes. El día del vencimiento se suscribe el Acta de Entrega y Recibo Definitivo de Obra (FR-2). Si el Contratista no corrige lo pactado, el Interventor recibe la obra en el estado en que se encuentre, descontando el valor de lo no corregido e iniciando el proceso sancionatorio."
 };
 
 /* ---------------------- 4. ESTRUCTURA DE MANUALES (PDF) ---------------------- */
@@ -805,11 +764,10 @@ const MANUAL_STRUCTURE = {
         ]
     },
     cierre: {
-        title: "Cierre y Liquidación",
+        title: "Cierre",
         docs: [
             { id: "IN-16", name: "Visita Previa y Recibo Definitivo de Obra", code: "MEPI-MN1-IN-16", url: `${BASE_RAW_URL}/MEPI-MN1-IN-16.pdf` },
-            { id: "IN-17", name: "Recibo Definitivo de Interventoría", code: "MEPI-MN1-IN-17", url: `${BASE_RAW_URL}/MEPI-MN1-IN-17.pdf` },
-            { id: "IN-18", name: "Acta de Liquidación", code: "MEPI-MN1-IN-18", url: `${BASE_RAW_URL}/MEPI-MN1-IN-18.pdf` },
+            { id: "IN-17", name: "Recibo Definitivo de Interventoría", code: "MEPI-MN1-IN-17", url: `${BASE_RAW_URL}/MEPI-MN1-IN-17.pdf` }
         ]
     }
 };
